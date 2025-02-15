@@ -17,7 +17,7 @@ source "amazon-ebs" "ubuntu" {
   source_ami_filter {
     filters = {
 		  # COMPLETE ME complete the "name" argument below to use Ubuntu 24.04
-      name = ""
+      name = "ubuntu/images/hvm-ssd-gp3/ubuntu-noble-24.04-amd64-server-20250115"
       root-device-type    = "ebs"
       virtualization-type = "hvm"
     }
@@ -33,25 +33,54 @@ build {
   name = "web-nginx"
   sources = [
     # COMPLETE ME Use the source defined above
-    ""
+    "sources.amazon-ebs.ubuntu"
   ]
   
   # https://developer.hashicorp.com/packer/docs/templates/hcl_templates/blocks/build/provisioner
   provisioner "shell" {
     inline = [
       "echo creating directories",
-      # COMPLETE ME add inline scripts to create necessary directories and change directory ownership.
+      "echo set debconf to Noninteractive", 
+      "echo 'debconf debconf/frontend select Noninteractive' | sudo debconf-set-selections",
+      "sudo NEEDRESTART_MODE=l apt-get dist-upgrade --yes",
+      "sudo apt-get update && sudo apt-get upgrade -y",
+      "sudo mkdir -p /var/www/lab6",
+      "sudo mkdir -p /etc/nginx",
+      "mkdir ~/scripts",
+      "sudo chown -R ubuntu:ubuntu /var/www/lab6 ",
+      "sudo chown -R ubuntu:ubuntu /etc/nginx/"
+
     ]
   }
 
   provisioner "file" {
     # COMPLETE ME add the HTML file to your image
+    source = "./files/index.html"
+    destination = "/var/www/lab6/"
   }
 
   provisioner "file" {
     # COMPLETE ME add the nginx.conf file to your image
+    source = "./files/nginx.conf"
+    destination = "/etc/nginx/"
   }
 
   # COMPLETE ME add additional provisioners to run shell scripts and complete any other tasks
+
+  provisioner "file" {
+    source = "./scripts/"
+    destination = "~/scripts"
+  }
+
+  provisioner "shell" {
+    inline = [
+      "cd ~/scripts",
+      "sudo chmod +x install-nginx",
+      "sudo chmod +x setup-nginx",
+      "./install-nginx",
+      "./setup-nginx"
+    ]
+  }
+
 }
 
