@@ -44,11 +44,14 @@ build {
       "echo 'debconf debconf/frontend select Noninteractive' | sudo debconf-set-selections",
       "sudo NEEDRESTART_MODE=l apt-get dist-upgrade --yes",
       "sudo apt-get update && sudo apt-get upgrade -y",
-      "sudo mkdir -p /var/www/lab6",
-      "sudo mkdir -p /etc/nginx",
+      "sudo mkdir -p /web/html",
+      "sudo mkdir -p /etc/nginx/sites-available/",
+      "sudo mkdir -p /tmp/web/",
       "mkdir ~/scripts",
-      "sudo chown -R ubuntu:ubuntu /var/www/lab6 ",
-      "sudo chown -R ubuntu:ubuntu /etc/nginx/"
+      "sudo chown -R ubuntu:ubuntu /web/html ",
+      "sudo chown -R ubuntu:ubuntu /etc/nginx/sites-available",
+      "sudo chown -R ubuntu:ubuntu /tmp/web",
+      "export DEBIAN_FRONTEND=noninteractive"
 
     ]
   }
@@ -56,13 +59,13 @@ build {
   provisioner "file" {
     # COMPLETE ME add the HTML file to your image
     source = "./files/index.html"
-    destination = "/var/www/lab6/"
+    destination = "/web/html/"
   }
 
   provisioner "file" {
     # COMPLETE ME add the nginx.conf file to your image
     source = "./files/nginx.conf"
-    destination = "/etc/nginx/"
+    destination = "/tmp/web/"
   }
 
   # COMPLETE ME add additional provisioners to run shell scripts and complete any other tasks
